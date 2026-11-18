@@ -1,0 +1,34 @@
+kind: wasmer.io/App.v0
+name: portfolio
+owner: bola23
+app_id: da_KE4I8tXUN5Za
+annotations:
+  anybuild.run/config:
+    composer_build_script: post-update-cmd
+    composer_enable: true
+    name: out
+    node_build_command: npm run build
+    node_install_inputs:
+      - package.json
+    node_package_manager: npm
+    npm_version: '11'
+    php_framework: laravel
+    php_public_dir: public
+    phpix: true
+  anybuild.run/provider: laravel
+enableDatabase: true
+enable_email: true
+env:
+  PHPIX_PHP_THREADS: '4'
+# Persistent storage for uploads (photo, project images, CV, logo).
+# Without it the app filesystem is reset on every deploy.
+# The PUBLIC_DISK_ROOT secret must be /data so Laravel's public disk writes here.
+volumes:
+  - name: uploads
+    mount: /data
+jobs:
+  - name: after_deploy
+    trigger: post-deployment
+    action:
+      execute:
+        command: after_deploy
