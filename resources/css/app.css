@@ -1,0 +1,461 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/plus-jakarta-sans';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../views';
+@source '../js';
+@source '../../app/View';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------------------------------------------------------------------------
+ | Theme tokens. Light is the default; `.dark` on <html> switches the palette.
+ | Brand colors (--brand-*) are injected from Website Settings.
+ * ------------------------------------------------------------------------- */
+:root {
+    --c-bg: #f7f8fc;
+    --c-surface: #ffffff;
+    --c-elevated: #f0f2fa;
+    --c-line: #e4e7f1;
+    --c-line-strong: #d3d8e8;
+    --c-fg: #11132a;
+    --c-muted: #565c78;
+    --c-subtle: #676d88;
+    /* Text-safe (WCAG AA) variants of the accent/success colors. */
+    --c-accent-ink: color-mix(in oklab, var(--brand-accent, #14b8a6) 58%, black);
+    --c-success-ink: #047857;
+    --c-shadow: 15 23 42;
+    color-scheme: light;
+}
+
+.dark {
+    --c-bg: #0a0e1a;
+    --c-surface: #111729;
+    --c-elevated: #182038;
+    --c-line: rgb(255 255 255 / 0.08);
+    --c-line-strong: rgb(255 255 255 / 0.15);
+    --c-fg: #e9ebf5;
+    --c-muted: #a3a9c4;
+    --c-subtle: #868dab;
+    --c-accent-ink: color-mix(in oklab, var(--brand-accent, #14b8a6) 80%, white);
+    --c-success-ink: #34d399;
+    --c-shadow: 0 0 0;
+    color-scheme: dark;
+}
+
+@theme {
+    --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Plus Jakarta Sans Variable', 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+
+    --color-bg: var(--c-bg);
+    --color-surface: var(--c-surface);
+    --color-elevated: var(--c-elevated);
+    --color-line: var(--c-line);
+    --color-line-strong: var(--c-line-strong);
+    --color-fg: var(--c-fg);
+    --color-muted: var(--c-muted);
+    --color-subtle: var(--c-subtle);
+    --color-primary: var(--brand-primary, #4f46e5);
+    --color-accent: var(--brand-accent, #14b8a6);
+    --color-success: #10b981;
+    --color-accent-ink: var(--c-accent-ink);
+    --color-success-ink: var(--c-success-ink);
+
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --animate-float: float 6s ease-in-out infinite;
+    --animate-pulse-dot: pulse-dot 2.4s ease-out infinite;
+
+    @keyframes float {
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+
+    @keyframes pulse-dot {
+        0% {
+            box-shadow: 0 0 0 0 color-mix(in oklab, currentColor 55%, transparent);
+        }
+        70%,
+        100% {
+            box-shadow: 0 0 0 9px transparent;
+        }
+    }
+}
+
+@layer base {
+    html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 5.5rem;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+        @apply bg-bg font-sans text-fg antialiased transition-colors duration-300;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+        @apply font-display;
+    }
+
+    ::selection {
+        background: color-mix(in oklab, var(--color-primary) 25%, transparent);
+    }
+
+    :focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 3px;
+        border-radius: 8px;
+    }
+
+    [x-cloak] {
+        display: none !important;
+    }
+
+    /* Scroll reveal: JS hides only blocks that start below the fold, so
+       first-viewport content never waits for JavaScript. `translate` is used
+       (not `transform`) so it never fights hover lifts or the 3D tilt. */
+    .reveal-pending {
+        opacity: 0;
+    }
+
+    .reveal-in {
+        animation: reveal-in 0.8s var(--ease-out-expo) var(--reveal-delay, 0ms) backwards;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        html {
+            scroll-behavior: auto;
+        }
+
+        .reveal-pending {
+            opacity: 1 !important;
+        }
+
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+        }
+    }
+}
+
+@layer components {
+    .container-page {
+        @apply mx-auto w-full max-w-[1200px] px-5 sm:px-8;
+    }
+
+    /* Below-the-fold sections skip layout and paint until they approach the
+       viewport (the content stays in the HTML for crawlers and find-in-page). */
+    .section {
+        @apply relative scroll-mt-20 py-20 sm:py-28;
+        content-visibility: auto;
+        contain-intrinsic-size: auto 900px;
+    }
+
+    .section-label {
+        @apply inline-flex items-center rounded-full border px-4 py-1.5 text-xs font-semibold tracking-[0.18em] uppercase;
+        color: var(--color-primary);
+        border-color: color-mix(in oklab, var(--color-primary) 25%, transparent);
+        background: color-mix(in oklab, var(--color-primary) 8%, transparent);
+    }
+
+    .card {
+        @apply relative rounded-2xl border border-line bg-surface;
+        box-shadow: 0 1px 2px rgb(var(--c-shadow) / 0.04), 0 8px 24px -12px rgb(var(--c-shadow) / 0.08);
+    }
+
+    .card-hover {
+        @apply transition duration-300 hover:-translate-y-1;
+        transition-timing-function: var(--ease-out-expo);
+    }
+
+    .card-hover:hover {
+        border-color: color-mix(in oklab, var(--color-primary) 35%, var(--c-line));
+        box-shadow: 0 2px 4px rgb(var(--c-shadow) / 0.04), 0 22px 44px -18px color-mix(in oklab, var(--color-primary) 35%, transparent);
+    }
+
+    .btn {
+        @apply inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold whitespace-nowrap transition duration-300 select-none;
+    }
+
+    .btn-primary {
+        @apply bg-gradient-brand text-white hover:-translate-y-0.5;
+        box-shadow: 0 10px 24px -10px color-mix(in oklab, var(--color-primary) 70%, transparent);
+    }
+
+    .btn-outline {
+        @apply border border-line-strong bg-surface text-fg hover:-translate-y-0.5 hover:border-primary hover:text-primary;
+    }
+
+    .btn-ghost {
+        @apply text-fg hover:text-primary;
+    }
+
+    .tag {
+        @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium;
+        color: var(--color-primary);
+        background: color-mix(in oklab, var(--color-primary) 9%, transparent);
+    }
+
+    .skill-tab {
+        @apply border-line bg-surface text-muted hover:text-fg;
+    }
+
+    .skill-tab.is-active {
+        @apply bg-gradient-brand border-transparent text-white shadow-md;
+    }
+
+    .tag-neutral {
+        @apply inline-flex items-center gap-1.5 rounded-full border border-line bg-elevated px-3 py-1 text-xs font-medium text-muted;
+    }
+
+    .icon-btn {
+        @apply inline-flex size-10 items-center justify-center rounded-full border border-line bg-surface text-muted transition hover:-translate-y-0.5 hover:border-primary hover:text-primary;
+    }
+
+    .icon-tile {
+        @apply grid size-12 shrink-0 place-items-center rounded-xl;
+        color: var(--color-primary);
+        background: color-mix(in oklab, var(--color-primary) 10%, transparent);
+    }
+
+    .field {
+        @apply w-full rounded-xl border border-line bg-bg px-4 py-3 text-sm text-fg transition placeholder:text-subtle focus:border-primary focus:outline-none;
+    }
+
+    .field:focus {
+        box-shadow: 0 0 0 4px color-mix(in oklab, var(--color-primary) 15%, transparent);
+    }
+
+    .field-label {
+        @apply mb-2 block text-sm font-medium text-fg;
+    }
+
+    .blob {
+        position: absolute;
+        pointer-events: none;
+        border-radius: 9999px;
+        filter: blur(80px);
+        opacity: 0.35;
+    }
+
+    .dark .blob {
+        opacity: 0.22;
+    }
+
+    .stretched-link::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+    }
+
+    .skip-link {
+        @apply sr-only z-[100] rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white focus:not-sr-only focus:fixed focus:top-4 focus:left-4;
+    }
+
+    /* Typography for admin-authored rich text (sanitized server-side). */
+    .prose-portfolio {
+        @apply leading-relaxed text-muted;
+    }
+
+    .prose-portfolio > * + * {
+        @apply mt-4;
+    }
+
+    .prose-portfolio h2 {
+        @apply text-2xl font-bold text-fg;
+    }
+
+    .prose-portfolio h3 {
+        @apply text-xl font-bold text-fg;
+    }
+
+    .prose-portfolio a {
+        @apply font-medium text-primary underline underline-offset-4;
+    }
+
+    .prose-portfolio strong {
+        @apply font-semibold text-fg;
+    }
+
+    .prose-portfolio ul {
+        @apply space-y-2;
+    }
+
+    .prose-portfolio ul > li {
+        @apply relative pl-6;
+    }
+
+    .prose-portfolio ul > li::before {
+        content: '';
+        @apply absolute top-[0.6em] left-1 size-2 rounded-full bg-gradient-brand;
+    }
+
+    .prose-portfolio ol {
+        @apply list-decimal space-y-2 pl-5 marker:font-semibold marker:text-primary;
+    }
+
+    .prose-portfolio blockquote {
+        @apply border-l-4 border-primary pl-5 text-fg italic;
+    }
+
+    .prose-portfolio code {
+        @apply rounded bg-elevated px-1.5 py-0.5 text-[0.85em] text-primary;
+    }
+
+    .prose-portfolio pre {
+        @apply overflow-x-auto rounded-xl border border-line bg-elevated p-5 text-sm;
+    }
+
+    .prose-portfolio pre code {
+        @apply bg-transparent p-0 text-fg;
+    }
+}
+
+@utility text-gradient {
+    background: linear-gradient(100deg, var(--color-primary), var(--color-accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+@utility bg-gradient-brand {
+    background: linear-gradient(120deg, var(--color-primary), var(--color-accent));
+}
+
+/* Lift brand-colored text for contrast on dark backgrounds. */
+.dark .section-label,
+.dark .tag,
+.dark .icon-tile {
+    color: color-mix(in oklab, var(--color-primary) 55%, white);
+}
+
+/* ---------------------------------------------------------------------------
+ | Motion keyframes (scroll reveal + hero entrance). Only `opacity`,
+ | `translate` and `transform` are animated, so everything stays on the GPU.
+ * ------------------------------------------------------------------------- */
+@keyframes reveal-in {
+    from {
+        opacity: 0;
+        translate: 0 24px;
+    }
+}
+
+@keyframes hero-rise {
+    from {
+        opacity: 0;
+        translate: 0 18px;
+    }
+}
+
+.hero-rise {
+    animation: hero-rise 0.9s var(--ease-out-expo) var(--rise-delay, 0ms) backwards;
+}
+
+/* ---------------------------------------------------------------------------
+ | Hero 3D scene: the photo sits inside a tilted orbit of technology logos.
+ | Pure CSS 3D transforms (no WebGL, no library). The pointer gently rotates
+ | the scene on desktop via --scene-rx / --scene-ry (see motion/parallax.js).
+ * ------------------------------------------------------------------------- */
+.hero-stage {
+    perspective: 1100px;
+    animation: hero-stage-in 1.3s var(--ease-out-expo) both;
+}
+
+.hero-scene {
+    --orbit-tilt: 72deg;
+    --orbit-speed: 30s;
+    position: relative;
+    transform-style: preserve-3d;
+    transform: rotateX(var(--scene-rx, 0deg)) rotateY(var(--scene-ry, 0deg));
+    transition: transform 0.9s var(--ease-out-expo);
+}
+
+.hero-photo {
+    transform: translateZ(0);
+}
+
+.hero-depth {
+    transform: translateZ(70px);
+}
+
+.orbit {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    transform-style: preserve-3d;
+    transform: translateY(8%) rotateX(var(--orbit-tilt));
+    /* Transform only: animating opacity here would flatten the 3D context. */
+    animation: orbit-in 1.6s var(--ease-out-expo) 0.15s backwards;
+}
+
+.orbit-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: calc(var(--orbit-r) * 2);
+    height: calc(var(--orbit-r) * 2);
+    translate: -50% -50%;
+    border-radius: 9999px;
+    border: 1.5px dashed color-mix(in oklab, var(--color-primary) 45%, transparent);
+}
+
+.orbit-track {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform-style: preserve-3d;
+    animation: orbit-spin var(--orbit-speed) linear infinite;
+}
+
+.orbit-item {
+    position: absolute;
+    transform-style: preserve-3d;
+    transform: rotateZ(var(--angle)) translateX(var(--orbit-r));
+}
+
+/* Counter-rotates each logo so it always faces the viewer while orbiting. */
+.orbit-face {
+    translate: -50% -50%;
+    transform: rotateZ(calc(0deg - var(--angle))) rotateX(calc(0deg - var(--orbit-tilt)));
+    animation: orbit-face var(--orbit-speed) linear infinite;
+}
+
+@keyframes hero-stage-in {
+    from {
+        transform: translateY(28px) scale(0.94);
+    }
+}
+
+@keyframes orbit-in {
+    from {
+        transform: translateY(8%) rotateX(0deg) scale(0.4);
+    }
+}
+
+@keyframes orbit-spin {
+    to {
+        transform: rotateZ(360deg);
+    }
+}
+
+@keyframes orbit-face {
+    from {
+        transform: rotateZ(calc(0deg - var(--angle))) rotateX(calc(0deg - var(--orbit-tilt)));
+    }
+    to {
+        transform: rotateZ(calc(-360deg - var(--angle))) rotateX(calc(0deg - var(--orbit-tilt)));
+    }
+}
