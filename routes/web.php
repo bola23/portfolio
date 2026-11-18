@@ -3,6 +3,7 @@
 use App\Http\Controllers\Site\ContactController;
 use App\Http\Controllers\Site\HomeController;
 use App\Http\Controllers\Site\ProjectController;
+use App\Http\Controllers\Site\PublicFileController;
 use App\Http\Controllers\Site\SeoController;
 use Illuminate\Support\Facades\Route;
 
@@ -20,3 +21,8 @@ Route::post('/contact', ContactController::class)
 Route::get('/cv', [SeoController::class, 'cv'])->name('cv');
 Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('sitemap');
 Route::get('/robots.txt', [SeoController::class, 'robots'])->name('robots');
+
+Route::get('/storage/{path}', PublicFileController::class)
+    ->where('path', '.*')
+    ->withoutMiddleware('web')
+    ->name('public-file');
